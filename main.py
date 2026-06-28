@@ -10,15 +10,17 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origin = ["http://localhost:3000"],
-    allow_methods=["*"]
+    allow_origins=["http://localhost:3000"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 database_models.Base.metadata.create_all(bind=engine)
 
 @app.get('/')
 def greet():
-    return "Welcome to Telusko Trac"
+    return "Welcome to Inventra"
 
 products = [
     Product(id=1, name="phone", description="A smartphone", price=699.99, quantity=50),
@@ -32,7 +34,7 @@ def get_db():
     try:
         yield db
     finally:
-        db.commit()
+        db.close()
 
 def init_db():
     db = session()
@@ -59,7 +61,7 @@ def get_product_by_id(id: int, db: Session = Depends(get_db)):
         return db_product
     return "product not found"
 
-@app.post('/product')
+@app.post('/products')
 def add_product(product: Product, db: Session = Depends(get_db)):
     db.add(database_models.Product(**product.model_dump()))
     db.commit()
@@ -85,4 +87,5 @@ def delete_product(id: int, db: Session = Depends(get_db)):
     if db_product:
         db.delete(db_product)
         db.commit()
+        return "Product Deleted"
     return "Product Not Found" 
