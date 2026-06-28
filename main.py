@@ -81,11 +81,11 @@ def update_product(id: int, product: Product, db: Session = Depends(get_db)):
         return "No product found"
 
 
-@app.delete('/product')
+@app.delete('/products/{id}')
 def delete_product(id: int, db: Session = Depends(get_db)):
     db_product = db.query(database_models.Product).filter(database_models.Product.id == id).first()
     if db_product:
         db.delete(db_product)
         db.commit()
-        return "Product Deleted"
-    return "Product Not Found" 
+        return {"message": "Product Deleted"}
+    return {"message": "Product Not Found"}
